@@ -38,14 +38,21 @@ void DisjointSets::Destroy() {
 }
 
 int DisjointSets::Find(int i) {
+    int pathCompressionList[n], idx = 0;
+
     //Iterative
     while(true){
         if(parent[i] == -1)
-            return i;
+            break;
         else
-            i = parent[i];
+            pathCompressionList[idx++] = i, i = parent[i];
     }
-    //TODO PATH-COMPRESSION
+
+    //Path Compress
+    for (int j = 0; j < idx; ++j)
+        parent[pathCompressionList[j]] = i;
+
+    return i;
 }
 
 bool DisjointSets::Union(int i, int j) {
