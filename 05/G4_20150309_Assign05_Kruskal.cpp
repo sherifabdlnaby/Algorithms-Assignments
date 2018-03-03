@@ -1,9 +1,9 @@
-// GROUP:   X
-// ID:      XXXXXXXX
+// GROUP:   4
+// ID:      20150309
 // Assign:  05
 // Assign:  Kruskal
 // UVA:     11631
-// Name:    XXX MY FULL NAME
+// Name:    SHERIF ABDEL-NABY
 
 #include <cstdio>
 #include <cstdlib>
