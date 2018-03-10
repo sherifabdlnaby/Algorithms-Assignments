@@ -10,19 +10,25 @@
 #include <cstring>
 #include <iostream>
 #include <cmath>
+#include <iomanip>
+#include <vector>
+#include <fstream>
 
 using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct DisjointSets
-{
+struct DisjointSets {
     int n;
-    int* parent;
-    int* num_nodes;
+    int *parent;
+    int *num_nodes;
+
     void Initialize(int _n);
+
     void Destroy();
+
     int Find(int i);
+
     bool Union(int i, int j);
 };
 
@@ -30,8 +36,8 @@ void DisjointSets::Initialize(int _n) {
     n = _n;
     parent = new int[n];
     num_nodes = new int[n];
-    memset(parent,-1, n * sizeof(int));
-    memset(num_nodes,0, n * sizeof(int));
+    memset(parent, -1, n * sizeof(int));
+    memset(num_nodes, 0, n * sizeof(int));
 }
 
 void DisjointSets::Destroy() {
@@ -43,8 +49,8 @@ int DisjointSets::Find(int i) {
     int pathCompressionList[n], idx = 0;
 
     //Iterative
-    while(true){
-        if(parent[i] == -1)
+    while (true) {
+        if (parent[i] == -1)
             break;
         else
             pathCompressionList[idx++] = i, i = parent[i];
@@ -67,9 +73,9 @@ bool DisjointSets::Union(int i, int j) {
         return false;
 
     //Union the smaller set with the bigger set, if sets are equal union i with j and increment.
-    if(num_nodes[iRoot] > num_nodes[jRoot])
+    if (num_nodes[iRoot] > num_nodes[jRoot])
         parent[jRoot] = iRoot;
-    else if(num_nodes[iRoot] < num_nodes[jRoot])
+    else if (num_nodes[iRoot] < num_nodes[jRoot])
         parent[iRoot] = jRoot;
     else
         parent[jRoot] = iRoot, ++num_nodes[iRoot];
@@ -79,23 +85,22 @@ bool DisjointSets::Union(int i, int j) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-struct Edge
-{
-	int u, v;
-	int w;
+struct Edge {
+    int u, v;
+    double w;
 
     friend ostream &operator<<(ostream &os, const Edge &edge) {
         os << "u: " << edge.u << " v: " << edge.v << " w: " << edge.w;
         return os;
     }
 
-    Edge(int u, int v, int w) : u(u), v(v), w(w) {}
-    Edge(){}
+    Edge(int u, int v, double w) : u(u), v(v), w(w) {}
+
+    Edge() {}
 };
 
-bool IsBeforeEdge(Edge& a, Edge& b)
-{
-	return a.w < b.w;
+bool IsBeforeEdge(Edge &a, Edge &b) {
+    return a.w < b.w;
 }
 
 template<class T>
@@ -104,11 +109,11 @@ struct Array {
     int n;      //Capacity
     int size;   //Init Size
 
-    Array(int size = 0, int n = 50){
-        this -> size = size;
-        this -> n = size > n ? size : n;
+    Array(int size = 0, int n = 50) {
+        this->size = size;
+        this->n = size > n ? size : n;
 
-        arr = new T[this -> n];
+        arr = new T[this->n];
 
         //init
         for (int i = 0; i < size; ++i) {
@@ -190,7 +195,7 @@ struct Heap {
         T tmp = arr[0];
 
         //Swap
-        swap(arr[0], arr[arr.size-1]);
+        swap(arr[0], arr[arr.size - 1]);
 
         //Erase
         arr.removeLast();
@@ -231,30 +236,60 @@ struct Heap {
         }
     }
 
-    bool isEmpty()
-    {
+    bool isEmpty() {
         return arr.size;
     }
 
-    int size(){
+    int size() {
         return arr.size;
     }
 };
 
+struct Node {
+    int x, y;
+    int prnt;
+    double weight;
+    vector<Edge> adj;
+
+    void Initialize(int x, int y) {
+        this->x = x;
+        this->y = y;
+    }
+
+    void Destroy() {//adj.destroy();}
+    }
+
+
+};
+
+double ecludianDist(int x1, int y1, int x2, int y2) {
+    return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int main()
-{
-    int V,E;
-    cin >> V >> E;
-    while(V != 0 || E != 0) {
-        Array<Array<Edge>> adjList(V);
-        for (int i = 0; i < E; ++i) {
-            int a, b, c;
-            cin >> a >> b >> c;
-            adjList[a].addLast(Edge(a,b,c));
+int main() {
+    int V, N = 0;
+    cin >> V;
+    while (N++, V) {
+        vector<Node> NodeList(V);
+
+        for (int i = 0; i < V; ++i) {
+            int a, b;
+            cin >> a >> b;
+            Node newNode;
+            newNode.Initialize(a, b);
+            NodeList[i] = newNode;
         }
 
-        int idx = 0, MSTNodes = 0;
+        //Precomputed distance (can be optimized to compute two at a time but fak it not now)
+        for (int i = 0; i < V; ++i) {
+            for (int j = 0; j < V; ++j) {
+                if (i == j) continue;
+                double weight = ecludianDist(NodeList[i].x, NodeList[i].y, NodeList[j].x, NodeList[j].y);
+                NodeList[i].adj.push_back(Edge(i, j, weight));
+            }
+        }
+
+        int MSTNodes = 0;
 
         DisjointSets MST;
         MST.Initialize(V);
@@ -263,32 +298,50 @@ int main()
         priorityQueue.initialize(IsBeforeEdge);
 
         //Add first node
-        for (int i = 0; i < adjList[0].size; ++i) {
-            priorityQueue.add(adjList[0][i]);
+        for (int i = 0; i < NodeList[0].adj.size(); ++i) {
+            priorityQueue.add(NodeList[0].adj[i]);
+            NodeList[NodeList[0].adj[i].v].prnt = 0;
+            NodeList[NodeList[0].adj[i].v].weight = NodeList[0].adj[i].w;
         }
 
-        while(MSTNodes < V - 1)
-        {
+        while (MSTNodes < V - 1) {
             Edge e = priorityQueue.retrieveFirst();
 
+
+            NodeList[e.v].weight = e.w;
+            NodeList[e.v].prnt = e.u;
+
+
+            //if fiona's stone
+            if (e.v == 1) {
+                int idx = e.v;
+                double minimumWeight = 0;
+                while (idx != 0)
+                {
+                    minimumWeight = max(minimumWeight, NodeList[idx].weight);
+                    idx = NodeList[idx].prnt;
+                }
+
+                cout << "Scenario #" << N << endl;
+                cout << "Frog Distance = " << fixed << setprecision(3) << minimumWeight << endl << endl;
+                break;
+            }
+
+
             //If Non Visited node
-            if(MST.Union(e.u, e.v))
-            {
-                //dbg
-                cout << e.u << " - " << e.v << "  W(" << e.w << ")\n";
-
+            if (MST.Union(e.u, e.v)) {
                 //add new V nodes edges. (u should've been added by a previous iteration)
-                for (int i = 0; i < adjList[e.v].size; ++i)
-                    priorityQueue.add(adjList[e.v][i]);
-
+                for (int i = 0; i < NodeList[e.v].adj.size(); ++i) {
+                    //Add if Visited
+                    if (MST.Find(e.v) != MST.Find(NodeList[e.v].adj[i].v)) {
+                        priorityQueue.add(NodeList[e.v].adj[i]);
+                    }
+                }
                 MSTNodes++;
             }
         }
-
-        //NEW TESTCASE
-        cin >> V >> E;
+        cin >> V;
     }
     return 0;
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
