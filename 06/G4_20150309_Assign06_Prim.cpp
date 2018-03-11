@@ -2,17 +2,14 @@
 // ID:      20150309
 // Assign:  06
 // Assign:  Prim
-// UVA:     11631
+// UVA:     534
 // Name:    SHERIF ABDEL-NABY
 
 #include <cstdio>
-#include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <cmath>
 #include <iomanip>
-#include <vector>
-#include <fstream>
 
 using namespace std;
 
@@ -249,28 +246,46 @@ struct Node {
     int x, y;
     int prnt;
     double weight;
-    vector<Edge> adj;
+    Array<Edge> adj;
 
     void Initialize(int x, int y) {
         this->x = x;
         this->y = y;
     }
 
-    void Destroy() {//adj.destroy();}
-    }
+    void Destroy() {adj.destroy();}
 
 
 };
+double squareRoot(double x, int n = 100)
+{
+    if (x == 0 || x == 1)
+        return x;
 
-double ecludianDist(int x1, int y1, int x2, int y2) {
-    return sqrt(pow(x1 - x2, 2) + pow(y1 - y2, 2));
+    double start = 1, end = x, mid = start + (end - start) / 2;
+
+    while (n-- ,abs(x - mid*mid) > 1.0E-8)
+    {
+        if (mid*mid < x)
+            start = mid;
+        else
+            end = mid;
+
+        mid = start + (end - start) / 2;
+    }
+
+    return mid;
+}
+
+double euclideanDist(int x1, int y1, int x2, int y2) {
+    return squareRoot((x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2));
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main() {
     int V, N = 0;
     cin >> V;
     while (N++, V) {
-        vector<Node> NodeList(V);
+        Array<Node> NodeList(V);
 
         for (int i = 0; i < V; ++i) {
             int a, b;
@@ -284,8 +299,8 @@ int main() {
         for (int i = 0; i < V; ++i) {
             for (int j = 0; j < V; ++j) {
                 if (i == j) continue;
-                double weight = ecludianDist(NodeList[i].x, NodeList[i].y, NodeList[j].x, NodeList[j].y);
-                NodeList[i].adj.push_back(Edge(i, j, weight));
+                double weight = euclideanDist(NodeList[i].x, NodeList[i].y, NodeList[j].x, NodeList[j].y);
+                NodeList[i].adj.addLast(Edge(i, j, weight));
             }
         }
 
@@ -298,7 +313,7 @@ int main() {
         priorityQueue.initialize(IsBeforeEdge);
 
         //Add first node
-        for (int i = 0; i < NodeList[0].adj.size(); ++i) {
+        for (int i = 0; i < NodeList[0].adj.size; ++i) {
             priorityQueue.add(NodeList[0].adj[i]);
             NodeList[NodeList[0].adj[i].v].prnt = 0;
             NodeList[NodeList[0].adj[i].v].weight = NodeList[0].adj[i].w;
@@ -331,7 +346,7 @@ int main() {
             //If Non Visited node
             if (MST.Union(e.u, e.v)) {
                 //add new V nodes edges. (u should've been added by a previous iteration)
-                for (int i = 0; i < NodeList[e.v].adj.size(); ++i) {
+                for (int i = 0; i < NodeList[e.v].adj.size; ++i) {
                     //Add if Visited
                     if (MST.Find(e.v) != MST.Find(NodeList[e.v].adj[i].v)) {
                         priorityQueue.add(NodeList[e.v].adj[i]);
