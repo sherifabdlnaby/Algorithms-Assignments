@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <cmath>
 
 using namespace std;
 struct DisjointSets
@@ -85,7 +86,7 @@ int main() {
         memset(count, 0, n * sizeof(int));
 
         for (int k = 0; k < n; ++k)
-            maxi = max(maxi, ++count[x.Find(k)]);
+            maxi = std::max(maxi, ++count[x.Find(k)]);
 
         delete[] count;
 
