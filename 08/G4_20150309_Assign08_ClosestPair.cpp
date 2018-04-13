@@ -72,7 +72,7 @@ double ClosestPair(Point* p, int n){
         return dist(p[0], p[1]);
 
     if(n == 3)
-        return min(dist(p[0], p[1]), dist(p[0], p[2]));
+        return min(dist(p[0], p[1]), min(dist(p[0], p[2],dist(p[1], p[2]))));
 
     int mid = n/2;
     double rightSection = ClosestPair(p, mid);
@@ -83,7 +83,7 @@ double ClosestPair(Point* p, int n){
     Point* strip = new Point[n];
     int stripSize = 0;
     for (int i = 0; i < n; ++i)
-        if(abs(p[i].x - p[mid].x))
+        if(abs(p[i].x - p[mid].x) < minDistance)
             strip[stripSize++] = p[i];
 
     //Sort strip according to Y
