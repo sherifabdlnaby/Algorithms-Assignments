@@ -72,7 +72,7 @@ double ClosestPair(Point* p, int n){
         return dist(p[0], p[1]);
 
     if(n == 3)
-        return min(dist(p[0], p[1]), min(dist(p[0], p[2],dist(p[1], p[2]))));
+        return min(dist(p[0], p[1]), min(dist(p[0], p[2]),dist(p[1], p[2])));
 
     int mid = n/2;
     double rightSection = ClosestPair(p, mid);
